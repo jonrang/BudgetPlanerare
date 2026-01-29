@@ -1,0 +1,171 @@
+﻿<Window x:Class="BudgetPlanerare.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BudgetPlanerare"
+        mc:Ignorable="d"
+        Title="BudgetPlanerare" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundLight}">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Background="{StaticResource PrimaryDark}">
+            <StackPanel Margin="0,20,0,0">
+                <TextBlock Text="MIN BUDGET" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,0,0,30"/>
+
+                <Button Content="Översikt"
+                        Command="{Binding ShowDashboardCommand}"
+                        Style="{StaticResource MenuButtonStyle}" />
+                <Button Content="Transaktioner" Style="{StaticResource MenuButtonStyle}" />
+                <Button Content="Inställningar"
+                        Command="{Binding ShowSettingsCommand}"
+                        Style="{StaticResource MenuButtonStyle}" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="20">
+            <Grid Visibility="{Binding IsDashboardVisible, Converter={StaticResource BoolToVis}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Översikt" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="◀" Command="{Binding PreviousMonthCommand}" Width="30" Height="30"/>
+                        <TextBlock Text="{Binding CurrentMonthHeader}" VerticalAlignment="Center" Margin="10,0" FontWeight="Bold" MinWidth="100" TextAlignment="Center"/>
+                        <Button Content="▶" Command="{Binding NextMonthCommand}" Width="30" Height="30"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Inkomster" Foreground="Gray" FontSize="12" />
+                            <TextBlock Text="{Binding TotalIncome, StringFormat={}{0:N0} kr}" 
+                                       Foreground="{StaticResource IncomeGreen}" FontSize="20" 
+                                       FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SalaryInfo}"
+                                       FontSize="10" Foreground="Gray" Margin="0,5,0,0"/>
+
+                            <Button Content="Anmäl frånvaro"
+                                    Command="{Binding AddAbsenceCommand}"
+                                    Margin="0,10,0,0" Padding="5,2" FontSize="10"
+                                    Background="Transparent" BorderBrush="LightGray" BorderThickness="1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Utgifter" Foreground="Gray" FontSize="12"/>
+                            <TextBlock Text="{Binding TotalExpense, StringFormat={}{0:N0} kr}" Foreground="{StaticResource ExpenseRed}" FontSize="20" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource SummaryCardStyle}" Background="#E3F2FD">
+                        <StackPanel>
+                            <TextBlock Text="Prognos (Kvar)" Foreground="#1565C0" FontSize="12" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding ForecastBalance, StringFormat={}{0:N0} kr}" Foreground="#1565C0" FontSize="20" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="10">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Senaste transaktioner" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <ListView ItemsSource="{Binding Transactions}" BorderThickness="0">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Text="{Binding DateString}" Grid.Column="0" Foreground="Gray" VerticalAlignment="Center" FontSize="11"/>
+
+                                        <StackPanel Grid.Column="1" Margin="10,0">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding CategoryName}" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="2" 
+                                               Text="{Binding FormattedAmount}" 
+                                               Foreground="{Binding DisplayColor}" 
+                                               FontWeight="Bold" 
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,15,0"/>
+
+                                        <Button Grid.Column="3" Content="X" 
+                                            Foreground="Red" Background="Transparent" BorderThickness="0"
+                                            Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </DockPanel>
+                </Border>
+
+                <Button Grid.Row="3" 
+                    Content="+ Lägg till transaktion" 
+                    Command="{Binding AddTransactionCommand}"
+                    Background="{StaticResource IncomeGreen}" Foreground="White" FontWeight="Bold"
+                    Height="40" Margin="0,20,0,0" 
+                    HorizontalAlignment="Right" Padding="20,0"/>
+            </Grid>
+            <Grid Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVis}}"
+                  Background="{StaticResource BackgroundLight}">
+
+                <StackPanel DataContext="{Binding SettingsVM}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="300">
+                    <TextBlock Text="Inställningar" FontSize="24" FontWeight="Bold" Margin="0,0,0,30" HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="Årsinkomst (före skatt)" FontWeight="SemiBold"/>
+                    <TextBox Text="{Binding YearlyIncome, StringFormat=N0}" Height="35" Margin="0,5,0,20" Padding="5" VerticalContentAlignment="Center"/>
+
+                    <TextBlock Text="Årsarbetstid (timmar)" FontWeight="SemiBold"/>
+                    <TextBlock Text="Standard heltid är 2080 h" FontSize="10" Foreground="Gray"/>
+                    <TextBox Text="{Binding YearlyWorkHours}" Height="35" Margin="0,5,0,20" Padding="5" VerticalContentAlignment="Center"/>
+
+                    <Border Background="#E3F2FD" Padding="15" CornerRadius="5" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Din beräknade timlön:" Foreground="Gray"/>
+                            <TextBlock Text="{Binding HourlyRateDisplay}" FontSize="20" FontWeight="Bold" Foreground="#1565C0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Button Content="Spara Inställningar" 
+                    Command="{Binding SaveCommand}"
+                    Background="{StaticResource PrimaryDark}" Foreground="White"
+                    Height="40"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</Window>

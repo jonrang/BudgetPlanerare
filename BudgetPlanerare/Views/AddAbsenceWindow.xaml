@@ -1,0 +1,32 @@
+﻿<Window x:Class="BudgetPlanerare.Views.AddAbsenceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BudgetPlanerare.Views"
+        mc:Ignorable="d"
+        Title="Registrera Frånvaro" Height="300" Width="350"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Border Padding="20" Background="{StaticResource BackgroundLight}">
+        <StackPanel>
+            <TextBlock Text="Registrera frånvaro" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Datum"/>
+            <DatePicker SelectedDate="{Binding Date}" Height="30" Margin="0,5,0,20"/>
+
+            <TextBlock Text="Orsak" Margin="0,0,0,5"/>
+            <Border Background="White" Padding="10" CornerRadius="4" Margin="0,0,0,20">
+                <StackPanel>
+                    <RadioButton Content="Sjukdom (Karensavdrag 80%" IsChecked="{Binding IsSickness}" Margin="0,0,0,10"/>
+                    <RadioButton Content="VAB (80% av lön, tak på 7.5 PBB)" IsChecked="{Binding IsVab}"/>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Avbryt" Command="{Binding CancelCommmand}" Width="80" Margin="0,0,10,0"/>
+                <Button Content="Spara" Command="{Binding SaveCommand}"
+                        Background="{StaticResource ExpenseRed}" Foreground="White" FontWeight="Bold" Width="80"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
