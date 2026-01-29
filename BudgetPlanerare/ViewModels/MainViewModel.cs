@@ -117,23 +117,15 @@ namespace BudgetPlanerare.ViewModels
             else
                 SalaryInfo = $"Lön: {netSalary:N0} kr";
 
-            ForecastBalance = _calcService.GetForecastForMonth(
+            var summary = _calcService.GetBudgetSummary(
                 CurrentViewDate.Year,
                 CurrentViewDate.Month,
                 Transactions.Select(t => t.GetModel()).ToList(),
                 netSalary);
 
-            // 3. Uppdatera övriga summeringar (Detta kan du också flytta till CalculationService om du vill)
-            TotalIncome = netSalary + Transactions
-                .Where(t => t.IsIncome && !t.IsRepeating) // Förenklad logik
-                .Sum(t => t.Amount);
-
-            // Total utgift (bara för display)
-            // OBS: Du bör egentligen ha en metod i CalculationService: GetTotalExpensesForMonth(...)
-            // Men vi gör en enkel här för nu:
-            TotalExpense = Transactions
-                .Where(t => !t.IsIncome)
-                .Sum(t => t.Amount); // Detta är en grov förenkling, bör hantera återkommande logik
+            TotalIncome = summary.TotalIncome;
+            TotalExpense = summary.TotalExpenses;
+            ForecastBalance = summary.ForecastBalance;
         }
 
         private void OnAddTransaction(object? parameter)
@@ -170,7 +162,7 @@ namespace BudgetPlanerare.ViewModels
                 var result = MessageBox.Show($"Ta bort {item.Name}?", "Bekräfta", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.No) return;
 
-                _dataService.DeleteTransaction(item.GetModel().Id); 
+                _dataService.DeleteTransaction(item.GetModel().Id);
 
                 Transactions.Remove(item);
 

@@ -96,5 +96,12 @@ namespace BudgetPlanerare.Service
             using var db = new AppDbContext();
             return db.Absences.Any(a => a.Date.Date == date.Date);
         }
+
+        public List<Category> GetCategories()
+        {
+            using var db = new AppDbContext();
+
+            return db.Categories.OrderBy(c => c.Name).ToList();
+        }
     }
 }

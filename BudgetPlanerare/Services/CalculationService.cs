@@ -53,5 +53,35 @@ namespace BudgetPlanerare.Services
 
             return totalIncome - totalExpenses;
         }
+
+        public MonthlyBudgetSummary GetBudgetSummary(int year, int month, List<Transaction> transactions, decimal netSalary)
+        {
+            decimal income = netSalary; 
+            decimal expenses = 0;
+
+            foreach (var t in transactions)
+            {
+                bool include = false;
+
+                if (t.Frequency == Frequency.Monthly) include = true;
+                else if (t.Frequency == Frequency.Yearly && t.YearlyOccurringMonth == month) include = true;
+                else if (t.Frequency == Frequency.OneTime && t.Date.Month == month && t.Date.Year == year) include = true;
+
+                if (include)
+                {
+                    if (t.Category != null && t.Category.IsIncome)
+                        income += t.Amount;
+                    else
+                        expenses += t.Amount;
+                }
+            }
+
+            return new MonthlyBudgetSummary
+            {
+                TotalIncome = income,
+                TotalExpenses = expenses,
+                ForecastBalance = income - expenses
+            };
+        }
     }
 }

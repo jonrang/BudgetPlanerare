@@ -14,11 +14,8 @@ namespace BudgetPlanerare
         {
             base.OnStartup(e);
 
-            // Detta säkerställer att databasen skapas och är uppdaterad 
-            // innan något annat händer.
             using (var db = new AppDbContext())
             {
-                // Alternativ A: Skapar DB om den saknas (Enklast för nybörjare)
                 db.Database.EnsureCreated();
 
                 // Alternativ B: Använd detta om du kör Migrationer (Rekommenderas för "riktiga" projekt)

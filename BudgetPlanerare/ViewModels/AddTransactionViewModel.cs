@@ -37,18 +37,9 @@ namespace BudgetPlanerare.ViewModels
         {
             _dataService = new DataService();
 
-            // Hämta kategorier från DB så dropdownen inte är tom
-            // I verkligheten bör detta göras async, men detta duger nu.
-            var cats = _dataService.GetTransactions().Select(t => t.Category).Distinct().ToList();
-            // OBS: Ovanstående är lite fult sätt att hämta kategorier på. 
-            // Bättre är om DataService har en GetCategories().
-            // Låt oss anta att vi hämtar dem via en ny metod eller seedar dem.
-            // För nu: Vi använder en hårdkodad fix om DB är tom på kategorier:
-            using (var db = new AppDbContext())
-            {
-                Categories = new ObservableCollection<Category>(db.Categories.ToList());
-            }
-
+            var categoriesFromDb = _dataService.GetCategories();
+            Categories = new ObservableCollection<Category>(categoriesFromDb);
+            
             SelectedCategory = Categories.FirstOrDefault();
 
             SaveCommand = new DelegateCommand(OnSave);
@@ -77,7 +68,6 @@ namespace BudgetPlanerare.ViewModels
                 Category = SelectedCategory,
                 Frequency = SelectedFrequency,
                 IsRepeating = SelectedFrequency != Frequency.OneTime
-                // Här kan du lägga till logik för YearlyOccurringMonth om du vill
             };
 
             CloseAction?.Invoke(true);
