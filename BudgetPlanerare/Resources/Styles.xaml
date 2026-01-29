@@ -2,12 +2,42 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <SolidColorBrush x:Key="PrimaryDark" Color="#2D3E50"/>
+    <SolidColorBrush x:Key="PrimaryLight" Color="#3E5268"/>
     <SolidColorBrush x:Key="BackgroundLight" Color="#F4F6F9"/>
     <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="TextPrimary" Color="#333333"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="#7F8C8D"/>
 
     <SolidColorBrush x:Key="IncomeGreen" Color="#2ECC71"/>
     <SolidColorBrush x:Key="ExpenseRed" Color="#E74C3C"/>
+    <SolidColorBrush x:Key="HighlightBlue" Color="#1565C0"/>
+
+    <Style x:Key="HeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryDark}"/>
+        <Setter Property="Margin" Value="0,0,0,20"/>
+    </Style>
+
+    <Style x:Key="LabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="Margin" Value="0,10,0,5"/>
+    </Style>
+
+    <Style x:Key="InputBaseStyle" TargetType="Control">
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="BorderBrush" Value="#BDC3C7"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background" Value="White"/>
+    </Style>
+
+    <Style TargetType="TextBox" BasedOn="{StaticResource InputBaseStyle}"/>
+    <Style TargetType="ComboBox" BasedOn="{StaticResource InputBaseStyle}"/>
+    <Style TargetType="DatePicker" BasedOn="{StaticResource InputBaseStyle}"/>
 
     <Style x:Key="MenuButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
@@ -25,7 +55,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#3E5268"/>
+                            <Setter Property="Background" Value="{StaticResource PrimaryLight}"/>
                             <Setter Property="Cursor" Value="Hand"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -34,15 +64,49 @@
         </Setter>
     </Style>
 
-    <Style x:Key="SummaryCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
-        <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="15"/>
-        <Setter Property="Margin" Value="5"/>
-        <Setter Property="Effect">
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource IncomeGreen}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="15,0"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
             <Setter.Value>
-                <DropShadowEffect Color="Gray" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="Background" Value="#ECF0F1"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+    </Style>
+
+    <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource ExpenseRed}"/>
+    </Style>
+
+    <Style x:Key="SummaryCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="Black" Opacity="0.05" BlurRadius="10" ShadowDepth="2"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

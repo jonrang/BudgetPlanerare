@@ -63,9 +63,10 @@
 
                     <Border Grid.Column="0" Style="{StaticResource SummaryCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="Inkomster" Foreground="Gray" FontSize="12" />
+                            <TextBlock Text="Inkomster" Foreground="{StaticResource TextSecondary}" 
+                                       FontSize="13" FontWeight="Medium"/>
                             <TextBlock Text="{Binding TotalIncome, StringFormat={}{0:N0} kr}" 
-                                       Foreground="{StaticResource IncomeGreen}" FontSize="20" 
+                                       Foreground="{StaticResource IncomeGreen}" FontSize="24" 
                                        FontWeight="Bold"/>
                             <TextBlock Text="{Binding SalaryInfo}"
                                        FontSize="10" Foreground="Gray" Margin="0,5,0,0"/>
@@ -100,39 +101,63 @@
                     </Border>
                 </Grid>
 
-                <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="10">
+                <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="20" Margin="0,20,0,0">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="Senaste transaktioner" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock DockPanel.Dock="Top" Text="Senaste transaktioner" 
+                                   FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="{StaticResource PrimaryDark}" Margin="0,0,0,15"/>
 
-                        <ListView ItemsSource="{Binding Transactions}" BorderThickness="0">
+                        <ListView ItemsSource="{Binding Transactions}" BorderThickness="0" 
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Focusable" Value="False"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListViewItem">
+                                                <Border Background="{TemplateBinding Background}" Padding="0,8" BorderBrush="#F0F0F0" BorderThickness="0,0,0,1">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FAFAFA"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,5">
+                                    <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="90"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="40"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Text="{Binding DateString}" Grid.Column="0" Foreground="Gray" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBlock Text="{Binding DateString}" Grid.Column="0" Foreground="{StaticResource TextSecondary}" 
+                                                   VerticalAlignment="Center"/>
 
-                                        <StackPanel Grid.Column="1" Margin="10,0">
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding CategoryName}" FontSize="11" Foreground="Gray"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Medium" Foreground="{StaticResource TextPrimary}"/>
+                                            <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="{StaticResource TextSecondary}"/>
                                         </StackPanel>
 
                                         <TextBlock Grid.Column="2" 
                                                Text="{Binding FormattedAmount}" 
                                                Foreground="{Binding DisplayColor}" 
                                                FontWeight="Bold" 
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,15,0"/>
+                                               VerticalAlignment="Center"/>
 
                                         <Button Grid.Column="3" Content="X" 
-                                            Foreground="Red" Background="Transparent" BorderThickness="0"
                                             Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding}"/>
+                                                CommandParameter="{Binding}"
+                                                Background="Transparent" BorderThickness="0" Foreground="#E74C3C" 
+                                                FontSize="14" FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Right"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -143,9 +168,9 @@
                 <Button Grid.Row="3" 
                     Content="+ Lägg till transaktion" 
                     Command="{Binding AddTransactionCommand}"
-                    Background="{StaticResource IncomeGreen}" Foreground="White" FontWeight="Bold"
-                    Height="40" Margin="0,20,0,0" 
-                    HorizontalAlignment="Right" Padding="20,0"/>
+                    Style="{StaticResource PrimaryButtonStyle}"
+                        HorizontalAlignment="Right" 
+                        Margin="0,20,0,0"/>
             </Grid>
             <Grid Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVis}}"
                   Background="{StaticResource BackgroundLight}">

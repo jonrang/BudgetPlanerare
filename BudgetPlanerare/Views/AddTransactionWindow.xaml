@@ -5,53 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BudgetPlanerare.Views"
         mc:Ignorable="d"
-        Title="Ny Transaktion" Height="500" Width="400"
+        Title="Ny Transaktion" Height="580" Width="400"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize" Background="{StaticResource BackgroundLight}">
 
     <Window.Resources>
-        <CollectionViewSource x:Key="GroupedCategories" Source="{Binding Categories}">
+        <!--<CollectionViewSource x:Key="GroupedCategories" Source="{Binding Categories}">
             <CollectionViewSource.GroupDescriptions>
                 <PropertyGroupDescription PropertyName="GroupName"/>
             </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
+        </CollectionViewSource>-->
     </Window.Resources>
 
-    <Border Padding="20" Background="{StaticResource BackgroundLight}">
+    <Border Padding="20">
         <StackPanel>
-            <TextBlock Text="Lägg till transaktion" FontSize="20" 
-                       FontWeight="Bold" Margin="0,0,0,20" 
-                       Foreground="{StaticResource PrimaryDark}"/>
-            
-            <TextBlock Text="Beskrivning"/>
-            <TextBox Text="{Binding Name}" Height="30" Margin="0,5,0,15" Padding="5"/>
+            <TextBlock Text="Lägg till transaktion" Style="{StaticResource HeaderStyle}"/>
 
-            <TextBlock Text="Belopp (kr)"/>
-            <TextBox Text="{Binding Amount}" Height="30" Margin="0,5,0,15" Padding="5"/>
+            <TextBlock Text="Beskrivning" Style="{StaticResource LabelStyle}"/>
+            <TextBox Text="{Binding Name}"/>
 
-            <TextBlock Text="Kategori"/>
+            <TextBlock Text="Belopp (kr)" Style="{StaticResource LabelStyle}"/>
+            <TextBox Text="{Binding Amount}" />
+
+            <TextBlock Text="Kategori" Style="{StaticResource LabelStyle}"/>
             <ComboBox ItemsSource="{Binding Categories}"
                       SelectedItem="{Binding SelectedCategory}"
-                      DisplayMemberPath="Name"
-                      Height="30" Margin="0,5,0,15">
-                
-            </ComboBox>
+                      DisplayMemberPath="Name"/>
 
-            <TextBlock Text="Datum"/>
-            <DatePicker SelectedDate="{Binding Date}" Height="30" Margin="0,5,0,15"/>
+            <TextBlock Text="Datum" Style="{StaticResource LabelStyle}"/>
+            <DatePicker SelectedDate="{Binding Date}"/>
 
-            <TextBlock Text="Återkommande?"/>
+            <TextBlock Text="Återkommande?" Style="{StaticResource LabelStyle}"/>
             <ComboBox ItemsSource="{Binding Frequencies}"
                       SelectedItem="{Binding SelectedFrequency}"
-                      Height="30" Margin="0,5,0,25"/>
+                      Margin="0,0,0,30"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Avbryt" Command="{Binding CancelCommand}"
-                        Width="100" Height="35" Margin="0,0,10,0" Background="LightGray"/>
+                        Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"/>
 
                 <Button Content="Spara" Command="{Binding SaveCommand}"
-                        Width="100" Height="35"
-                        Background="{StaticResource IncomeGreen}" Foreground="White" FontWeight="Bold"/>
+                        Width="100" Style="{StaticResource PrimaryButtonStyle}"/>
             </StackPanel>
         </StackPanel>
     </Border>
