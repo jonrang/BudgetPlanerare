@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows;
 using BudgetPlanerare.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace BudgetPlanerare
 {
@@ -16,10 +17,9 @@ namespace BudgetPlanerare
 
             using (var db = new AppDbContext())
             {
-                db.Database.EnsureCreated();
+                //db.Database.EnsureCreated();
 
-                // Alternativ B: Använd detta om du kör Migrationer (Rekommenderas för "riktiga" projekt)
-                // db.Database.Migrate(); 
+                db.Database.Migrate(); 
             }
         }
     }

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetPlanerare.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260128004804_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260129225755_InitialUpdate")]
+    partial class InitialUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,6 +90,18 @@ namespace BudgetPlanerare.Migrations
                             Id = 6,
                             IsIncome = false,
                             Name = "Streaming-tjänster"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            IsIncome = false,
+                            Name = "Barn"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            IsIncome = false,
+                            Name = "Fritid"
                         });
                 });
 
@@ -121,7 +133,7 @@ namespace BudgetPlanerare.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("YearlyMonthMonth")
+                    b.Property<int?>("YearlyOccurringMonth")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -165,6 +177,12 @@ namespace BudgetPlanerare.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AppStartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("StartingBalance")
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("YearlyIncome")
                         .HasColumnType("TEXT");

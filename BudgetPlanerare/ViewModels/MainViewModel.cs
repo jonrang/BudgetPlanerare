@@ -9,6 +9,7 @@ using BudgetPlanerare.Service;
 using BudgetPlanerare.Services;
 using BudgetPlanerare.Views;
 using BudgetPlanerare.VM;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace BudgetPlanerare.ViewModels
 {
@@ -54,6 +55,9 @@ namespace BudgetPlanerare.ViewModels
 
         private string _salaryInfo;
         public string SalaryInfo { get => _salaryInfo; set => SetProperty(ref _salaryInfo, value); }
+
+        private decimal _totalBalance;
+        public decimal TotalBalance { get => _totalBalance; set => SetProperty(ref _totalBalance, value); }
 
         public DelegateCommand AddTransactionCommand { get; }
         public DelegateCommand DeleteTransactionCommand { get; }
@@ -126,6 +130,17 @@ namespace BudgetPlanerare.ViewModels
             TotalIncome = summary.TotalIncome;
             TotalExpense = summary.TotalExpenses;
             ForecastBalance = summary.ForecastBalance;
+
+            var rawTransactions = _dataService.GetTransactions();
+
+            decimal history = _calcService.GetAccumulatedResult(
+                CurrentViewDate.Year,
+                CurrentViewDate.Month,
+                profile,
+                rawTransactions,
+                _dataService);
+
+            TotalBalance = history + ForecastBalance;
         }
 
         private void OnAddTransaction(object? parameter)

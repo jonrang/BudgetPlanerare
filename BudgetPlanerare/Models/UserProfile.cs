@@ -9,5 +9,7 @@ namespace BudgetPlanerare.Models
         public int Id { get; set; }
         public decimal YearlyIncome { get; set; }
         public int YearlyWorkHours { get; set; }
+        public decimal StartingBalance { get; set; }
+        public DateTime AppStartDate { get; set; } = DateTime.Now;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using BudgetPlanerare.Models;
+using BudgetPlanerare.Service;
 
 namespace BudgetPlanerare.Services
 {
@@ -82,6 +83,32 @@ namespace BudgetPlanerare.Services
                 TotalExpenses = expenses,
                 ForecastBalance = income - expenses
             };
+        }
+
+        public decimal GetAccumulatedResult(int currentYear, int currentMonth, UserProfile profile, List<Transaction> allTransactions, DataService dataService)
+        {
+            decimal accumulated = profile.StartingBalance;
+
+            DateTime iterator = profile.AppStartDate;
+
+            iterator = new DateTime(iterator.Year, iterator.Month, 1);
+
+            DateTime target = new DateTime(currentYear, currentMonth, 1);
+
+            while (iterator < target)
+            {
+                var absences = dataService.GetAbsencesForMonth(iterator.Year, iterator.Month);
+
+                var netSalary = CalculateMonthlyIncome(profile, absences);
+
+                var summary = GetBudgetSummary(iterator.Year, iterator.Month, allTransactions, netSalary);
+
+                accumulated += summary.ForecastBalance;
+
+                iterator = iterator.AddMonths(1);
+            }
+
+            return accumulated;
         }
     }
 }

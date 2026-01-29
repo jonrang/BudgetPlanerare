@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BudgetPlanerare.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,7 +48,9 @@ namespace BudgetPlanerare.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     YearlyIncome = table.Column<decimal>(type: "TEXT", nullable: false),
-                    YearlyWorkHours = table.Column<int>(type: "INTEGER", nullable: false)
+                    YearlyWorkHours = table.Column<int>(type: "INTEGER", nullable: false),
+                    StartingBalance = table.Column<decimal>(type: "TEXT", nullable: false),
+                    AppStartDate = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,7 +69,7 @@ namespace BudgetPlanerare.Migrations
                     IsRepeating = table.Column<bool>(type: "INTEGER", nullable: false),
                     EndDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Frequency = table.Column<int>(type: "INTEGER", nullable: false),
-                    YearlyMonthMonth = table.Column<int>(type: "INTEGER", nullable: true),
+                    YearlyOccurringMonth = table.Column<int>(type: "INTEGER", nullable: true),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -114,7 +116,9 @@ namespace BudgetPlanerare.Migrations
                     { 3, false, "Mat" },
                     { 4, false, "Hus & drift" },
                     { 5, false, "Transport" },
-                    { 6, false, "Streaming-tjänster" }
+                    { 6, false, "Streaming-tjänster" },
+                    { 7, false, "Barn" },
+                    { 8, false, "Fritid" }
                 });
 
             migrationBuilder.CreateIndex(

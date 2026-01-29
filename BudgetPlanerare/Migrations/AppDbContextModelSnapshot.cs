@@ -87,6 +87,18 @@ namespace BudgetPlanerare.Migrations
                             Id = 6,
                             IsIncome = false,
                             Name = "Streaming-tjänster"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            IsIncome = false,
+                            Name = "Barn"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            IsIncome = false,
+                            Name = "Fritid"
                         });
                 });
 
@@ -162,6 +174,12 @@ namespace BudgetPlanerare.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AppStartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("StartingBalance")
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("YearlyIncome")
                         .HasColumnType("TEXT");

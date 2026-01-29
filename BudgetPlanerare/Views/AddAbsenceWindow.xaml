@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BudgetPlanerare.Views"
         mc:Ignorable="d"
-        Title="Registrera Frånvaro" Height="300" Width="350"
+        Title="Registrera Frånvaro" Height="350" Width="350"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Border Padding="20" Background="{StaticResource BackgroundLight}">
         <StackPanel>
@@ -23,7 +23,7 @@
             </Border>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Avbryt" Command="{Binding CancelCommmand}" Width="80" Margin="0,0,10,0"/>
+                <Button Content="Avbryt" Command="{Binding CancelCommand}" Width="80" Margin="0,0,10,0"/>
                 <Button Content="Spara" Command="{Binding SaveCommand}"
                         Background="{StaticResource ExpenseRed}" Foreground="White" FontWeight="Bold" Width="80"/>
             </StackPanel>
