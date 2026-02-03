@@ -23,9 +23,10 @@
             </Border>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Avbryt" Command="{Binding CancelCommand}" Width="80" Margin="0,0,10,0"/>
+                <Button Content="Avbryt" Command="{Binding CancelCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"/>
                 <Button Content="Spara" Command="{Binding SaveCommand}"
-                        Background="{StaticResource ExpenseRed}" Foreground="White" FontWeight="Bold" Width="80"/>
+                        Style="{StaticResource DangerButtonStyle}"
+                        Width="100"/>
             </StackPanel>
         </StackPanel>
     </Border>
