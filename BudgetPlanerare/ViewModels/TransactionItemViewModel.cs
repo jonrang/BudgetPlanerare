@@ -6,7 +6,7 @@ using BudgetPlanerare.VM;
 
 namespace BudgetPlanerare.ViewModels
 {
-    public class TransactionItemViewModel : ViewModelBase
+    public class TransactionItemViewModel : ViewModelBase, IHistoryItem
     {
         private readonly Transaction _model;
 
@@ -54,7 +54,7 @@ namespace BudgetPlanerare.ViewModels
                 {
                     _model.Date = value;
                     RaisePropertyChanged();
-                    RaisePropertyChanged(nameof(DateString));
+                    RaisePropertyChanged(nameof(DisplayDate));
                 }
             }
         }
@@ -141,10 +141,21 @@ namespace BudgetPlanerare.ViewModels
                 }
             }
         }
-        public string DateString => _model.Date.ToString("yyyy-MM-dd");
+        public string DisplayDate => _model.Date.ToString("yyyy-MM-dd");
         public string CategoryName => _model.Category?.Name ?? "No Category";
 
-        public string FrequencyName => _model.Frequency.ToString();
+        public string FrequencyName
+        {
+            get
+            {
+                switch (_model.Frequency)
+                {
+                    case Frequency.Monthly: return "Månadsvis";
+                    case Frequency.Yearly: return "Årlig";
+                    default: return "Engångs";
+                }
+            }
+        }
         public string FormattedAmount
         {
             get
@@ -164,5 +175,8 @@ namespace BudgetPlanerare.ViewModels
         }
 
         public string RepeatingVisibility => _model.IsRepeating ? "Visible" : "Collapsed";
+        public string TypeName => FrequencyName;
+        public bool IsTransaction => true;
+        public int Id => _model.Id;
     }
 }

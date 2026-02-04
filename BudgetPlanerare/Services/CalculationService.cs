@@ -10,7 +10,14 @@ namespace BudgetPlanerare.Services
     {
         private const decimal VAB_CAP = 410000m;
 
-        public decimal CalculateMonthlyIncome(UserProfile profile, List<Absence> absences)
+        public class SalaryResult
+        {
+            public decimal NetSalary { get; set; }   
+            public decimal BaseSalary { get; set; }    // Grundlön (årslön / 12)
+            public decimal Deduction => NetSalary - BaseSalary; 
+        }
+
+        public SalaryResult CalculateMonthlyIncome(UserProfile profile, List<Absence> absences)
         {
             decimal baseMonthlySalary = profile.YearlyIncome / 12;
             decimal hourlyRate = profile.YearlyIncome / profile.YearlyWorkHours;
@@ -29,31 +36,35 @@ namespace BudgetPlanerare.Services
                 totalCompensation += dayDeduction * 0.8m;
             }
 
-            return baseMonthlySalary - totalDeduction + totalCompensation;
-        }
-
-        public decimal GetForecastForMonth(int year, int month, List<Transaction> transactions, decimal netSalary)
-        {
-            decimal totalIncome = netSalary;
-            decimal totalExpenses = 0;
-
-            foreach (var t in transactions)
+            return new SalaryResult
             {
-                bool include = false;
-
-                if (t.Frequency == Frequency.Monthly) include = true;
-                else if (t.Frequency == Frequency.Yearly && t.YearlyOccurringMonth == month) include = true;
-                else if (t.Frequency == Frequency.OneTime && t.Date.Month == month && t.Date.Year == year) include = true;
-
-                if (include)
-                {
-                    if (t.Category != null && t.Category.IsIncome) totalIncome += t.Amount;
-                    else totalExpenses += t.Amount;
-                }
-            }
-
-            return totalIncome - totalExpenses;
+                BaseSalary = baseMonthlySalary,
+                NetSalary = baseMonthlySalary - totalDeduction + totalCompensation
+            };
         }
+
+        //public decimal GetForecastForMonth(int year, int month, List<Transaction> transactions, decimal netSalary)
+        //{
+        //    decimal totalIncome = netSalary;
+        //    decimal totalExpenses = 0;
+
+        //    foreach (var t in transactions)
+        //    {
+        //        bool include = false;
+
+        //        if (t.Frequency == Frequency.Monthly) include = true;
+        //        else if (t.Frequency == Frequency.Yearly && t.YearlyOccurringMonth == month) include = true;
+        //        else if (t.Frequency == Frequency.OneTime && t.Date.Month == month && t.Date.Year == year) include = true;
+
+        //        if (include)
+        //        {
+        //            if (t.Category != null && t.Category.IsIncome) totalIncome += t.Amount;
+        //            else totalExpenses += t.Amount;
+        //        }
+        //    }
+
+        //    return totalIncome - totalExpenses;
+        //}
 
         public MonthlyBudgetSummary GetBudgetSummary(int year, int month, List<Transaction> transactions, decimal netSalary)
         {
@@ -85,7 +96,7 @@ namespace BudgetPlanerare.Services
             };
         }
 
-        public decimal GetAccumulatedResult(int currentYear, int currentMonth, UserProfile profile, List<Transaction> allTransactions, DataService dataService)
+        public decimal GetAccumulatedResult(int currentYear, int currentMonth, UserProfile profile, List<Transaction> allTransactions, List<Absence> allAbsences)
         {
             decimal accumulated = profile.StartingBalance;
 
@@ -97,11 +108,13 @@ namespace BudgetPlanerare.Services
 
             while (iterator < target)
             {
-                var absences = dataService.GetAbsencesForMonth(iterator.Year, iterator.Month);
+                var absencesThisMonth = allAbsences
+                .Where(a => a.Date.Year == iterator.Year && a.Date.Month == iterator.Month)
+                .ToList();
 
-                var netSalary = CalculateMonthlyIncome(profile, absences);
+                var salaryResults = CalculateMonthlyIncome(profile, absencesThisMonth);
 
-                var summary = GetBudgetSummary(iterator.Year, iterator.Month, allTransactions, netSalary);
+                var summary = GetBudgetSummary(iterator.Year, iterator.Month, allTransactions, salaryResults.NetSalary);
 
                 accumulated += summary.ForecastBalance;
 

@@ -20,15 +20,20 @@
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" Background="{StaticResource PrimaryDark}">
             <StackPanel Margin="0,20,0,0">
-                <TextBlock Text="MIN BUDGET" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,0,0,30"/>
+                <TextBlock Text="EKONOMI" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,0,0,30"/>
 
-                <Button Content="Översikt"
-                        Command="{Binding ShowDashboardCommand}"
+                <Button Content="Översikt" 
+                        Command="{Binding ShowDashboardCommand}" 
                         Style="{StaticResource MenuButtonStyle}" />
-                <Button Content="Transaktioner" Style="{StaticResource MenuButtonStyle}" />
-                <Button Content="Inställningar"
-                        Command="{Binding ShowSettingsCommand}"
+
+                <Button Content="Transaktioner" 
+                        Command="{Binding ShowAllTransactionsCommand}" 
                         Style="{StaticResource MenuButtonStyle}" />
+
+                <Button Content="Profil" 
+                        Command="{Binding ShowSettingsCommand}" 
+                        Style="{StaticResource MenuButtonStyle}" />
+                
             </StackPanel>
         </Border>
 
@@ -103,7 +108,7 @@
 
                 <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="20" Margin="0,20,0,0">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="Senaste transaktioner" 
+                        <TextBlock DockPanel.Dock="Top" Text="Månadens transaktioner" 
                                    FontSize="16" FontWeight="SemiBold" 
                                    Foreground="{StaticResource PrimaryDark}" Margin="0,0,0,15"/>
 
@@ -139,7 +144,7 @@
                                             <ColumnDefinition Width="40"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Text="{Binding DateString}" Grid.Column="0" Foreground="{StaticResource TextSecondary}" 
+                                        <TextBlock Text="{Binding DisplayDate}" Grid.Column="0" Foreground="{StaticResource TextSecondary}" 
                                                    VerticalAlignment="Center"/>
 
                                         <StackPanel Grid.Column="1">
@@ -156,8 +161,8 @@
                                         <Button Grid.Column="3" Content="X" 
                                             Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"
-                                                Background="Transparent" BorderThickness="0" Foreground="#E74C3C" 
-                                                FontSize="14" FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Right"/>
+                                                Style="{StaticResource DangerButtonStyle}" Width="25"
+                                                FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Right"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -172,6 +177,92 @@
                         HorizontalAlignment="Right" 
                         Margin="0,20,0,0"/>
             </Grid>
+
+            <Grid Visibility="{Binding IsAllTransactionsVisible, Converter={StaticResource BoolToVis}}" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Transaktionshistorik" Style="{StaticResource HeaderStyle}" Grid.Row="0"/>
+
+                <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="10" 
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+
+                    <DataGrid ItemsSource="{Binding Transactions}" 
+                              AutoGenerateColumns="False" 
+                              CanUserAddRows="False"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              Background="White"
+                              BorderThickness="0"
+                              RowHeaderWidth="0">
+
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Padding" Value="10,10"/>
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="10"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridCell">
+                                            <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                                <ContentPresenter VerticalAlignment="Center" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Datum" Binding="{Binding DisplayDate}" Width="120"/>
+
+                            <DataGridTextColumn Header="Beskrivning" Binding="{Binding Name}" Width="*"/>
+
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding CategoryName}" Width="100"/>
+
+                            <DataGridTextColumn Header="Typ" Binding="{Binding TypeName}" Width="80" Foreground="Gray"/>
+
+                            <DataGridTextColumn Header="Belopp" Binding="{Binding FormattedAmount}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="{Binding DisplayColor}"/>
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTemplateColumn Width="60">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="✕" 
+                                                Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource DangerButtonStyle}" FontWeight="Bold" Cursor="Hand"
+                                                ToolTip="Radera transaktion permanent"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </Grid>
+
             <Grid Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVis}}"
                   Background="{StaticResource BackgroundLight}">
 

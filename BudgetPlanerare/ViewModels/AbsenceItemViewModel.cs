@@ -6,15 +6,19 @@ using BudgetPlanerare.VM;
 
 namespace BudgetPlanerare.ViewModels
 {
-    public class AbsenceItemViewModel : ViewModelBase
+    public class AbsenceItemViewModel : ViewModelBase, IHistoryItem
     {
         private readonly Absence _model;
+        private readonly decimal _estimatedCost;
 
-        public AbsenceItemViewModel(Absence model)
+        public AbsenceItemViewModel(Absence model, decimal estimatedCost)
         {
             _model = model;
+            _estimatedCost = estimatedCost;
         }
 
+        public int Id => _model.Id;
+       
         public DateTime Date
         {
             get => _model.Date;
@@ -25,7 +29,15 @@ namespace BudgetPlanerare.ViewModels
             }
         }
 
-        public string DisplayDate => _model.Date.ToString("yyyy-MM-dd (dddd)");
+        public string DisplayDate => _model.Date.ToString("yyyy-MM-dd");
+
+        public string Name => "Löneavdrag"; 
+
+        public string CategoryName => "Frånvaro";
+
+        public string TypeName => _model.Type.ToString();
+
+        public string FormattedAmount => $"-{_estimatedCost:N0} kr";
 
         public AbsenceType Type
         {
@@ -39,5 +51,6 @@ namespace BudgetPlanerare.ViewModels
         }
 
         public string DisplayColor => _model.Type == AbsenceType.VAB ? "DodgerBlue" : "OrangeRed";
+        public bool IsTransaction => false;
     }
 }

@@ -10,6 +10,7 @@ using BudgetPlanerare.Services;
 using BudgetPlanerare.Views;
 using BudgetPlanerare.VM;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using static BudgetPlanerare.Services.CalculationService;
 
 namespace BudgetPlanerare.ViewModels
 {
@@ -27,7 +28,12 @@ namespace BudgetPlanerare.ViewModels
             {
                 if (SetProperty(ref _currentViewDate, value))
                 {
-                    LoadData();
+                    RaisePropertyChanged(nameof(CurrentMonthHeader));
+
+                    if (IsDashboardVisible)
+                    {
+                        LoadDashboardData();
+                    }
                 }
             }
         }
@@ -36,7 +42,7 @@ namespace BudgetPlanerare.ViewModels
 
         public string CurrentMonthHeader => _currentViewDate.ToString("MMMM yyyy").ToUpper();
 
-        public ObservableCollection<TransactionItemViewModel> Transactions { get; set; } = new();
+        public ObservableCollection<IHistoryItem> Transactions { get; set; } = new();
 
         private decimal _totalIncome;
         public decimal TotalIncome { get => _totalIncome; set => SetProperty(ref _totalIncome, value); }
@@ -49,6 +55,9 @@ namespace BudgetPlanerare.ViewModels
 
         private bool _isDashboardVisible = true;
         public bool IsDashboardVisible { get => _isDashboardVisible; set => SetProperty(ref _isDashboardVisible, value); }
+
+        private bool _isAllTransactionsVisible = false;
+        public bool IsAllTransactionsVisible { get => _isAllTransactionsVisible; set => SetProperty(ref _isAllTransactionsVisible, value); }
 
         private bool _isSettingsVisible = false;
         public bool IsSettingsVisible { get => _isSettingsVisible; set => SetProperty(ref _isSettingsVisible, value); }
@@ -64,6 +73,7 @@ namespace BudgetPlanerare.ViewModels
         public DelegateCommand NextMonthCommand { get; }
         public DelegateCommand PreviousMonthCommand { get; }
         public DelegateCommand ShowDashboardCommand { get; }
+        public DelegateCommand ShowAllTransactionsCommand { get; }
         public DelegateCommand ShowSettingsCommand { get; }
         public DelegateCommand AddAbsenceCommand { get; }
 
@@ -81,64 +91,54 @@ namespace BudgetPlanerare.ViewModels
             PreviousMonthCommand = new DelegateCommand(_ => CurrentViewDate = CurrentViewDate.AddMonths(-1));
 
             ShowDashboardCommand = new DelegateCommand(_ => SwitchView("dashboard"));
+            ShowAllTransactionsCommand = new DelegateCommand(_ => SwitchView("all"));
             ShowSettingsCommand = new DelegateCommand(_ => SwitchView("settings"));
 
             AddAbsenceCommand = new DelegateCommand(OnAddAbsence);
 
-            LoadData();
+            LoadDashboardData();
         }
 
-
-        private void LoadData()
-        {
-            RaisePropertyChanged(nameof(CurrentMonthHeader));
-
-            Transactions.Clear();
-
-            var rawData = _dataService.GetTransactions();
-
-            foreach (var t in rawData)
-            {
-                Transactions.Add(new TransactionItemViewModel(t));
-            }
-
-            UpdateCalculations();
-        }
 
         private void UpdateCalculations()
         {
+            if (!IsDashboardVisible) return;
+
             var profile = _dataService.GetUserProfile();
 
             var absences = _dataService.GetAbsencesForMonth(CurrentViewDate.Year, CurrentViewDate.Month);
 
-            var netSalary = _calcService.CalculateMonthlyIncome(profile, absences);
+            var salaryResult = _calcService.CalculateMonthlyIncome(profile, absences);
 
-            var baseSalary = profile.YearlyIncome / 12;
-            var diff = netSalary - baseSalary;
-
-            if (diff < 0)
-                SalaryInfo = $"Lön: {netSalary:N0} kr (Avdrag: {diff:N0})";
+            if (salaryResult.Deduction < 0)
+                SalaryInfo = $"Lön: {salaryResult.NetSalary:N0} kr (Avdrag: {salaryResult.Deduction:N0})";
             else
-                SalaryInfo = $"Lön: {netSalary:N0} kr";
+                SalaryInfo = $"Lön: {salaryResult.NetSalary:N0} kr";
+
+            var transactionModels = Transactions
+                .OfType<TransactionItemViewModel>()
+                .Select(t => t.GetModel())
+                .ToList();
 
             var summary = _calcService.GetBudgetSummary(
                 CurrentViewDate.Year,
                 CurrentViewDate.Month,
-                Transactions.Select(t => t.GetModel()).ToList(),
-                netSalary);
+                transactionModels,
+                salaryResult.NetSalary);
 
             TotalIncome = summary.TotalIncome;
             TotalExpense = summary.TotalExpenses;
             ForecastBalance = summary.ForecastBalance;
 
-            var rawTransactions = _dataService.GetTransactions();
+            var allTransactions = _dataService.GetTransactions();
+            var allAbsences = _dataService.GetAllAbsences();
 
             decimal history = _calcService.GetAccumulatedResult(
                 CurrentViewDate.Year,
                 CurrentViewDate.Month,
                 profile,
-                rawTransactions,
-                _dataService);
+                allTransactions,
+                allAbsences);
 
             TotalBalance = history + ForecastBalance;
         }
@@ -172,16 +172,26 @@ namespace BudgetPlanerare.ViewModels
 
         private void OnDeleteTransaction(object? parameter)
         {
-            if (parameter is TransactionItemViewModel item)
+            if (parameter is IHistoryItem item)
             {
-                var result = MessageBox.Show($"Ta bort {item.Name}?", "Bekräfta", MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.No) return;
+                var msg = item.IsTransaction ?
+                    $"Ta bort transaktion: {item.Name}?" :
+                    $"Ta bort frånvaro: {item.DisplayDate}?";
 
-                _dataService.DeleteTransaction(item.GetModel().Id);
+                if (MessageBox.Show(msg, "Ta bort", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    if (item.IsTransaction)
+                    {
+                        _dataService.DeleteTransaction(item.Id);
+                    }
+                    else
+                    {
+                        _dataService.DeleteAbsence(item.Id);
+                    }
 
-                Transactions.Remove(item);
-
-                UpdateCalculations();
+                    Transactions.Remove(item);
+                    UpdateCalculations();
+                }
             }
         }
 
@@ -212,16 +222,70 @@ namespace BudgetPlanerare.ViewModels
 
         private void SwitchView(string view)
         {
-            if (view == "dashboard")
+            IsDashboardVisible = (view == "dashboard");
+            IsAllTransactionsVisible = (view == "all");
+            IsSettingsVisible = (view == "settings");
+
+            if (IsDashboardVisible)
             {
-                IsDashboardVisible = true;
-                IsSettingsVisible = false;
-                LoadData();
+                LoadDashboardData();
             }
-            else
+            else if (IsAllTransactionsVisible)
             {
-                IsDashboardVisible = false;
-                IsSettingsVisible = true;
+                LoadHistoryData();
+            }
+        }
+
+        private void LoadDashboardData()
+        {
+            Transactions.Clear();
+            var allTrans = _dataService.GetTransactions(); 
+
+            foreach (var t in allTrans)
+            {
+                bool include = false;
+
+                if (t.Frequency == Frequency.Monthly) include = true;
+                else if (t.Frequency == Frequency.Yearly && t.YearlyOccurringMonth == CurrentViewDate.Month) include = true;
+                else if (t.Frequency == Frequency.OneTime && t.Date.Year == CurrentViewDate.Year && t.Date.Month == CurrentViewDate.Month) include = true;
+
+                if (include)
+                {
+                    Transactions.Add(new TransactionItemViewModel(t));
+                }
+            }
+
+            UpdateCalculations();
+        }
+
+        private void LoadHistoryData()
+        {
+            Transactions.Clear();
+
+            var allTrans = _dataService.GetTransactions();
+            var historyList = new List<IHistoryItem>();
+
+            foreach (var t in allTrans)
+            {
+                historyList.Add(new TransactionItemViewModel(t));
+            }
+
+            var allAbsence = _dataService.GetAllAbsences(); 
+            var profile = _dataService.GetUserProfile();
+
+            decimal hourlyRate = (profile.YearlyWorkHours > 0) ? profile.YearlyIncome / profile.YearlyWorkHours : 0;
+            decimal dayCost = hourlyRate * 8;
+
+            foreach (var a in allAbsence)
+            {
+                historyList.Add(new AbsenceItemViewModel(a, dayCost));
+            }
+
+            var sortedList = historyList.OrderByDescending(x => x.Date).ToList();
+
+            foreach (var item in sortedList)
+            {
+                Transactions.Add(item);
             }
         }
     }

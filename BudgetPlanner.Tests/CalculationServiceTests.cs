@@ -36,7 +36,7 @@ namespace BudgetPlanner.Tests
             var result = service.CalculateMonthlyIncome(profile, absences);
 
             // Assert
-            Assert.Equal(expectedNet, result);
+            Assert.Equal(expectedNet, result.NetSalary);
         }
 
         [Fact]
@@ -45,35 +45,35 @@ namespace BudgetPlanner.Tests
             // Arrange
             var service = new CalculationService();
             var transactions = new List<Transaction>
-    {
-        new Transaction
-        {
-            Name = "Bilförsäkring",
-            Amount = 5000m,
-            Frequency = Frequency.Yearly,
-            YearlyOccurringMonth = 5, // Maj
-            Category = new Category { IsIncome = false }
-        },
-        new Transaction
-        {
-            Name = "Hyra",
-            Amount = 10000m,
-            Frequency = Frequency.Monthly,
-            Category = new Category { IsIncome = false }
-        }
-    };
+            {
+                new Transaction
+                {
+                    Name = "Bilförsäkring",
+                    Amount = 5000m,
+                    Frequency = Frequency.Yearly,
+                    YearlyOccurringMonth = 5, // Maj
+                    Category = new Category { IsIncome = false }
+                },
+                new Transaction
+                {
+                    Name = "Hyra",
+                    Amount = 10000m,
+                    Frequency = Frequency.Monthly,
+                    Category = new Category { IsIncome = false }
+                }
+            };
             decimal netSalary = 25000m;
 
             // Act
-            var forecastMay = service.GetForecastForMonth(2024, 5, transactions, netSalary);
-            var forecastJune = service.GetForecastForMonth(2024, 6, transactions, netSalary);
+            var summaryMay = service.GetBudgetSummary(2024, 5, transactions, netSalary);
+            var summaryJune = service.GetBudgetSummary(2024, 6, transactions, netSalary);
 
             // Assert
             // Maj: 25000 - 10000 - 5000 = 10000
-            Assert.Equal(10000m, forecastMay);
+            Assert.Equal(10000m, summaryMay.ForecastBalance);
 
             // Juni: 25000 - 10000 = 15000
-            Assert.Equal(15000m, forecastJune);
+            Assert.Equal(15000m, summaryJune.ForecastBalance);
         }
     }
 }

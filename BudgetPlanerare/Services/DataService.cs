@@ -64,6 +64,12 @@ namespace BudgetPlanerare.Service
             db.SaveChanges();
         }
 
+        public List<Absence> GetAllAbsences()
+        {
+            using var db = new AppDbContext();
+            return db.Absences.ToList();
+        }
+
         public List<Absence> GetAbsencesForMonth(int year, int month)
         {
             using var db = new AppDbContext();
